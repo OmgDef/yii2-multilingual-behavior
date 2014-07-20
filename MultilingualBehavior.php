@@ -138,9 +138,8 @@ class MultilingualBehavior extends Behavior
                 . get_class($this->owner));
         }
 
-        if (!$this->langClassName || !class_exists($this->langClassName)) {
-            throw new Exception('Please specify langClassName for the ' . get_class($this) . ' in the '
-                . get_class($this->owner));
+        if (!$this->langClassName) {
+            $this->langClassName = get_class($this->owner) . 'Lang';
         }
 
 
