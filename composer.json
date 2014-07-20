@@ -1,0 +1,21 @@
+{
+    "name": "omgdef/yii2-multilingual-behavior",
+    "description": "Port of the yii-multilingual-behavior for yii",
+    "type": "yii2-extension",
+    "keywords": ["yii2", "extension", " yii2-multilingual-behavior", " behavior", " multilingual", " i18"],
+    "license": "BSD-4-Clause",
+    "authors": [
+        {
+            "name": "OmgDef",
+            "email": "omgdef@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "omgdef\\multilingual\\": ""
+        }
+    },
+    "require": {
+        "yiisoft/yii2": "*"
+    }
+}
