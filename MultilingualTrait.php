@@ -11,6 +11,11 @@ use yii\db\ActiveQuery;
  */
 trait MultilingualTrait
 {
+    /**
+     * @var string the name of the lang field of the translation table. Default to 'language'.
+     */
+    public $languageField = 'language';
+
     private $language;
 
     /**
@@ -25,7 +30,7 @@ trait MultilingualTrait
             $this->language = Yii::$app->language;
 
         $this->with(['translation' => function ($query) {
-                $query->andWhere('language=:language', [':language' => substr($this->language, 0, 2)]);
+                $query->andWhere($this->languageField . '=:language', [':language' => substr($this->language, 0, 2)]);
             }]);
         return $this;
     }

@@ -60,18 +60,25 @@ class MultilingualBehavior extends Behavior
     public $languageField = 'language';
 
     /**
-     * @var boolean wether to force overwrite of the default language value with translated value even if it is empty.
+     * @var boolean whether to force overwrite of the default language value with translated value even if it is empty.
      * Used only for {@link localizedRelation}.
      * Default to false.
      */
     public $forceOverwrite = false;
 
+    /**
+     * @var boolean whether to dynamically create translation model class.
+     * If true, the translation model class will be generated on runtime with the use of the eval() function so no additionnal php file is needed.
+     * See {@link createLangClass()}
+     * Default to true.
+     */
+    public $dynamicLangClass = true;
+
     private $_currentLanguage;
-
     private $_ownerClassName;
-
     private $_ownerPrimaryKey;
-
+    private $_langClassShortName;
+    private $_ownerClassShortName;
     private $_langAttributes = array();
 
     /**
@@ -102,17 +109,24 @@ class MultilingualBehavior extends Behavior
      */
     public function configure()
     {
-        if (!$this->languages) {
+        if (!$this->languages || !is_array($this->languages)) {
             throw new Exception('Please specify array of available languages for the ' . get_class($this) . ' in the '
                 . get_class($this->owner) . ' or in the application parameters');
         } elseif (array_values($this->languages) !== $this->languages) { //associative array
             $this->languages = array_keys($this->languages);
         }
 
+        $languages = [];
+        foreach ($this->languages as $language) {
+            $languages[] = substr($language, 0, 2);
+        }
+
+        $this->languages = $languages;
+
         if (!$this->defaultLanguage) {
             $language = isset(Yii::$app->params['defaultLanguage']) && Yii::$app->params['defaultLanguage'] ?
-                Yii::$app->params['defaultLanguage'] : substr(Yii::$app->language, 0, 2);
-            $this->defaultLanguage = $language;
+                Yii::$app->params['defaultLanguage'] : Yii::$app->language;
+            $this->defaultLanguage = substr($language, 0, 2);
         }
 
         if (!$this->_currentLanguage) {
@@ -129,7 +143,10 @@ class MultilingualBehavior extends Behavior
                 . get_class($this->owner));
         }
 
+
+        $this->_langClassShortName = substr($this->langClassName, strrpos($this->langClassName, '\\') + 1);
         $this->_ownerClassName = get_class($this->owner);
+        $this->_ownerClassShortName = substr($this->_ownerClassName, strrpos($this->_ownerClassName, '\\') + 1);
 
         /** @var ActiveRecord $className */
         $className = $this->_ownerClassName;
@@ -169,6 +186,33 @@ class MultilingualBehavior extends Behavior
                     }
                 }
             }
+        }
+
+        if ($this->dynamicLangClass) {
+            $this->createLangClass();
+        }
+    }
+
+    public function createLangClass()
+    {
+        if (!class_exists($this->langClassName, false)) {
+            $namespace = substr($this->langClassName, 0, strrpos($this->langClassName, '\\'));
+            eval('
+            namespace ' . $namespace . ';
+            use yii\db\ActiveRecord;
+            class ' . $this->_langClassShortName . ' extends ActiveRecord
+            {
+                public static function tableName()
+                {
+                    return \'' . $this->tableName . '\';
+                }
+
+                public function ' . strtolower($this->_ownerClassShortName) . '()
+                {
+                    return $this->hasOne(\'' . $this->_ownerClassName . '\', [\'' . $this->_ownerPrimaryKey . '\' => \'
+                    ' . $this->langForeignKey . '\']);
+                }
+            }');
         }
     }
 
