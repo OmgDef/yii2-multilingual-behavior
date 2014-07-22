@@ -14,11 +14,11 @@ First example: by default translations of current language are inserted in the m
 ```php
 //Assuming current language is english
 
-$model = Post::findOne();
+$model = Post::findOne(1);
 echo $model->title; //echo "English title"
 
 //Now let's imagine current language is french (in protected/config/main.php : 'sourceLanguage' => 'fr')
-$model = Post::findOne();
+$model = Post::findOne(1);
 echo $model->title; //echo "Titre en Français"
 
 $model = Post::find()->localized('en')->one();
