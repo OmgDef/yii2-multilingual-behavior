@@ -17,7 +17,7 @@ Example #1: current language translations are inserted to the model as normal at
 $model = Post::findOne(1);
 echo $model->title; //echo "English title"
 
-//Now let's imagine current language is french (in protected/config/main.php : 'sourceLanguage' => 'fr')
+//Now let's imagine current language is french 
 $model = Post::findOne(1);
 echo $model->title; //echo "Titre en Français"
 
