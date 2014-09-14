@@ -19,7 +19,7 @@ trait MultilingualTrait
     private $language;
 
     /**
-     * Scope for querying by  languages
+     * Scope for querying by languages
      * @param $language
      * @return ActiveQuery
      */

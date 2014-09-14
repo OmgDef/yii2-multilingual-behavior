@@ -255,7 +255,7 @@ class MultilingualBehavior extends Behavior
                     if ($related['translations']) {
                         $translations = $this->indexByLanguage($related['translations']);
                         foreach ($translations as $translation) {
-                            if ($translation->language == $lang) {
+                            if ($translation->{$this->languageField} == $lang) {
                                 $attributeName = $this->localizedPrefix . $attribute;
                                 $attributeValue = isset($translation->$attributeName) ? $translation->$attributeName : null;
                                 $this->setLangAttribute($attribute . '_' . $lang, $attributeValue);
@@ -272,9 +272,10 @@ class MultilingualBehavior extends Behavior
                 $translation = $related['translation'][0];
 
                 foreach ($this->attributes as $attribute) {
-                    if ($translation->$attribute || $this->forceOverwrite) {
-                        $owner->setAttribute($attribute, $translation->$attribute);
-                        $owner->setOldAttribute($attribute, $translation->$attribute);
+                    $attribute_name = $this->localizedPrefix . $attribute;
+                    if ($translation->$attribute_name || $this->forceOverwrite) {
+                        $owner->setAttribute($attribute, $translation->$attribute_name);
+                        $owner->setOldAttribute($attribute, $translation->$attribute_name);
                     }
                 }
             }
