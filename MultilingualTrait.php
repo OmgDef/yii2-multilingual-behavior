@@ -16,8 +16,6 @@ trait MultilingualTrait
      */
     public $languageField = 'language';
 
-    private $language;
-
     /**
      * Scope for querying by languages
      * @param $language
@@ -25,13 +23,12 @@ trait MultilingualTrait
      */
     public function localized($language = null)
     {
-        $this->language = $language;
-        if (!$this->language)
-            $this->language = Yii::$app->language;
+        if (!$language)
+            $language = Yii::$app->language;
 
-        $this->with(['translation' => function ($query) {
-                $query->andWhere($this->languageField . '=:language', [':language' => substr($this->language, 0, 2)]);
-            }]);
+        $this->with(['translation' => function ($query) use ($language) {
+            $query->andWhere($this->languageField . '=:language', [':language' => substr($language, 0, 2)]);
+        }]);
         return $this;
     }
 
