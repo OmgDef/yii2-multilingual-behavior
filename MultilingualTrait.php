@@ -27,7 +27,7 @@ trait MultilingualTrait
             $language = Yii::$app->language;
 
         $this->with(['translation' => function ($query) use ($language) {
-            $query->andWhere($this->languageField . '=:language', [':language' => substr($language, 0, 2)]);
+            $query->andWhere([$this->languageField => substr($language, 0, 2)]);
         }]);
         return $this;
     }
