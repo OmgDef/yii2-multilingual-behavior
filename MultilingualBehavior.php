@@ -176,6 +176,8 @@ class MultilingualBehavior extends Behavior
 
                     if (in_array($attribute, $rule_attributes)) {
                         if ($rule[1] !== 'required' || $this->forceOverwrite) {
+                            if (isset($rule['skipOnEmpty']) && !$rule['skipOnEmpty'])
+                                $rule['skipOnEmpty'] = !$this->forceOverwrite;
                             $validators[] = Validator::createValidator($rule[1], $owner, $attribute . '_' . $language, array_slice($rule, 2));
                         } elseif ($rule[1] === 'required') {
                             //We add a safe rule in case the attribute has only a 'required' validation rule assigned
