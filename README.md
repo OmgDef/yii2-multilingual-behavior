@@ -27,10 +27,10 @@ echo $model->title; //echo "English title"
 //Current language is still french here
 ```
 
-Example #2: if you use `multilang()` in a `find()` query, every model translation is loaded as virtual attributes (title_en, title_fr, title_de, ...).
+Example #2: if you use `multilingual()` in a `find()` query, every model translation is loaded as virtual attributes (title_en, title_fr, title_de, ...).
 
 ```php
-$model = Post::find()->multilang()->one();
+$model = Post::find()->multilingual()->one();
 echo $model->title_en; //echo "English title"
 echo $model->title_fr; //echo "Titre en Français"
 ```
