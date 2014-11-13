@@ -79,7 +79,12 @@ class MultilingualBehavior extends Behavior
     private $_ownerPrimaryKey;
     private $_langClassShortName;
     private $_ownerClassShortName;
-    private $_langAttributes = array();
+    private $_langAttributes = [];
+
+    /**
+     * @var array excluded validators
+     */
+    private $_excludedValidators = ['unique'];
 
     /**
      * @inheritdoc
@@ -174,15 +179,17 @@ class MultilingualBehavior extends Behavior
                     else
                         $rule_attributes = array_map('trim', explode(',', $rule[0]));
 
-                    if (in_array($attribute, $rule_attributes)) {
-                        if ($rule[1] !== 'required' || $this->forceOverwrite) {
-                            if (isset($rule['skipOnEmpty']) && !$rule['skipOnEmpty'])
-                                $rule['skipOnEmpty'] = !$this->forceOverwrite;
-                            $validators[] = Validator::createValidator($rule[1], $owner, $attribute . '_' . $language, array_slice($rule, 2));
-                        } elseif ($rule[1] === 'required') {
-                            //We add a safe rule in case the attribute has only a 'required' validation rule assigned
-                            //and forceOverWrite == false
-                            $validators[] = Validator::createValidator('safe', $owner, $attribute . '_' . $language, array_slice($rule, 2));
+                    if (!in_array($rule[1], $this->_excludedValidators)) {
+                        if (in_array($attribute, $rule_attributes)) {
+                            if ($rule[1] !== 'required' || $this->forceOverwrite) {
+                                if (isset($rule['skipOnEmpty']) && !$rule['skipOnEmpty'])
+                                    $rule['skipOnEmpty'] = !$this->forceOverwrite;
+                                $validators[] = Validator::createValidator($rule[1], $owner, $attribute . '_' . $language, array_slice($rule, 2));
+                            } elseif ($rule[1] === 'required') {
+                                //We add a safe rule in case the attribute has only a 'required' validation rule assigned
+                                //and forceOverWrite == false
+                                $validators[] = Validator::createValidator('safe', $owner, $attribute . '_' . $language, array_slice($rule, 2));
+                            }
                         }
                     }
                 }
