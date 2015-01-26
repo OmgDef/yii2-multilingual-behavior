@@ -242,8 +242,8 @@ class MultilingualBehavior extends Behavior
      */
     public function getTranslation($language = null)
     {
-        $language = $language ? $language : $this->_currentLanguage;
-        return $this->owner->hasMany($this->langClassName, [$this->langForeignKey => $this->_ownerPrimaryKey])
+        $language = $language ?  : $this->_currentLanguage;
+        return $this->owner->hasOne($this->langClassName, [$this->langForeignKey => $this->_ownerPrimaryKey])
             ->where([$this->languageField => $language]);
     }
 
@@ -278,9 +278,7 @@ class MultilingualBehavior extends Behavior
         } elseif ($owner->isRelationPopulated('translation')) {
             $related = $owner->getRelatedRecords();
 
-            if ($related['translation']) {
-                $translation = $related['translation'][0];
-
+            if ($translation = $related['translation']) {
                 foreach ($this->attributes as $attribute) {
                     $attribute_name = $this->localizedPrefix . $attribute;
                     if ($translation->$attribute_name || $this->forceOverwrite) {
