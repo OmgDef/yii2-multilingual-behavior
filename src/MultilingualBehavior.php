@@ -3,7 +3,7 @@ namespace omgdef\multilingual;
 
 use Yii;
 use yii\base\Behavior;
-use yii\base\Exception;
+use yii\base\UnknownPropertyException;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -61,10 +61,16 @@ class MultilingualBehavior extends Behavior
 
     /**
      * @var boolean whether to force overwrite of the default language value with translated value even if it is empty.
-     * Used only for {@link localizedRelation}.
      * Default to false.
      */
     public $forceOverwrite = false;
+
+    /**
+     * @var boolean whether to force deletion of the associated translations when a base model is deleted.
+     * Not needed if using foreign key with 'on delete cascade'.
+     * Default to true.
+     */
+    public $forceDelete = true;
 
     /**
      * @var boolean whether to dynamically create translation model class.
@@ -93,10 +99,9 @@ class MultilingualBehavior extends Behavior
     {
         return [
             ActiveRecord::EVENT_AFTER_FIND => 'afterFind',
-            ActiveRecord::EVENT_INIT => 'afterInit',
             ActiveRecord::EVENT_AFTER_UPDATE => 'afterUpdate',
             ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert',
-            ActiveRecord::EVENT_BEFORE_VALIDATE => 'beforeValidate',
+            ActiveRecord::EVENT_AFTER_DELETE => 'afterDelete',
         ];
     }
 
@@ -106,24 +111,17 @@ class MultilingualBehavior extends Behavior
     public function attach($owner)
     {
         parent::attach($owner);
-        $this->configure();
-    }
 
-    /**
-     * Init behaviour configuration
-     */
-    public function configure()
-    {
         if (!$this->languages || !is_array($this->languages)) {
-            throw new Exception('Please specify array of available languages for the ' . get_class($this) . ' in the '
-                . get_class($this->owner) . ' or in the application parameters');
+            throw new InvalidConfigException('Please specify array of available languages for the ' . get_class($this) . ' in the '
+                . get_class($this->owner) . ' or in the application parameters', 101);
         } elseif (array_values($this->languages) !== $this->languages) { //associative array
             $this->languages = array_keys($this->languages);
         }
 
         $languages = [];
         foreach ($this->languages as $language) {
-            $languages[] = substr($language, 0, 2);
+            $languages[] = $this->getLanguageBaseName($language, 0, 2);
         }
 
         $this->languages = $languages;
@@ -131,16 +129,16 @@ class MultilingualBehavior extends Behavior
         if (!$this->defaultLanguage) {
             $language = isset(Yii::$app->params['defaultLanguage']) && Yii::$app->params['defaultLanguage'] ?
                 Yii::$app->params['defaultLanguage'] : Yii::$app->language;
-            $this->defaultLanguage = substr($language, 0, 2);
+            $this->defaultLanguage = $this->getLanguageBaseName($language, 0, 2);
         }
 
         if (!$this->_currentLanguage) {
-            $this->_currentLanguage = substr(Yii::$app->language, 0, 2);
+            $this->_currentLanguage = $this->getLanguageBaseName(Yii::$app->language, 0, 2);
         }
 
         if (!$this->attributes) {
-            throw new Exception('Please specify multilingual attributes for the ' . get_class($this) . ' in the '
-                . get_class($this->owner));
+            throw new InvalidConfigException('Please specify multilingual attributes for the ' . get_class($this) . ' in the '
+                . get_class($this->owner), 103);
         }
 
         if (!$this->langClassName) {
@@ -148,21 +146,17 @@ class MultilingualBehavior extends Behavior
         }
 
 
-        $this->_langClassShortName = substr($this->langClassName, strrpos($this->langClassName, '\\') + 1);
+        $this->_langClassShortName = $this->getShortClassName($this->langClassName);
         $this->_ownerClassName = get_class($this->owner);
-        $this->_ownerClassShortName = substr($this->_ownerClassName, strrpos($this->_ownerClassName, '\\') + 1);
+        $this->_ownerClassShortName = $this->getShortClassName($this->_ownerClassName);
 
         /** @var ActiveRecord $className */
         $className = $this->_ownerClassName;
-        $ownerPrimaryKey = $className::primaryKey();
-        if (!isset($ownerPrimaryKey[0])) {
-            throw new InvalidConfigException($this->_ownerClassName . ' must have a primary key.');
-        }
-        $this->_ownerPrimaryKey = $ownerPrimaryKey[0];
+        $this->_ownerPrimaryKey = $className::primaryKey()[0];
 
         if (!isset($this->langForeignKey)) {
-            throw new Exception('Please specify langForeignKey for the ' . get_class($this) . ' in the '
-                . get_class($this->owner));
+            throw new InvalidConfigException('Please specify langForeignKey for the ' . get_class($this) . ' in the '
+                . get_class($this->owner), 105);
         }
 
         /** @var ActiveRecord $owner */
@@ -177,10 +171,10 @@ class MultilingualBehavior extends Behavior
                     if (is_array($rule[0]))
                         $rule_attributes = $rule[0];
                     else
-                        $rule_attributes = array_map('trim', explode(',', $rule[0]));
+                        $rule_attributes = [$rule[0]];
 
                     if (!in_array($rule[1], $this->_excludedValidators)) {
-                        if (in_array($attribute, $rule_attributes)) {
+                        if ((is_array($rule_attributes) && in_array($attribute, $rule_attributes)) || (!is_array($rule_attributes) && $rule_attributes == $attribute)) {
                             if ($rule[1] !== 'required' || $this->forceOverwrite) {
                                 if (isset($rule['skipOnEmpty']) && !$rule['skipOnEmpty'])
                                     $rule['skipOnEmpty'] = !$this->forceOverwrite;
@@ -198,6 +192,14 @@ class MultilingualBehavior extends Behavior
 
         if ($this->dynamicLangClass) {
             $this->createLangClass();
+        }
+
+        $owner = new $this->langClassName;
+        foreach ($this->languages as $lang) {
+            foreach ($this->attributes as $attribute) {
+                $ownerFiled = $this->localizedPrefix . $attribute;
+                $this->setLangAttribute($attribute . '_' . $lang, $owner->{$ownerFiled});
+            }
         }
     }
 
@@ -292,35 +294,6 @@ class MultilingualBehavior extends Behavior
     }
 
     /**
-     * Handle 'afterInit' event of the owner.
-     */
-    public function afterInit()
-    {
-        if ($this->owner->isNewRecord) {
-            $owner = new $this->langClassName;
-            foreach ($this->languages as $lang) {
-                foreach ($this->attributes as $attribute) {
-                    $ownerFiled = $this->localizedPrefix . $attribute;
-                    $this->setLangAttribute($attribute . '_' . $lang, $owner->{$ownerFiled});
-                }
-            }
-        }
-    }
-
-    /**
-     * Handle 'beforeValidate' event of the owner.
-     */
-    public function beforeValidate()
-    {
-        if ($this->owner->isNewRecord && $this->forceOverwrite) {
-            foreach ($this->attributes as $attribute) {
-                $lAttr = $attribute . "_" . $this->defaultLanguage;
-                $this->owner->$lAttr = $this->owner->$attribute;
-            }
-        }
-    }
-
-    /**
      * Handle 'afterInsert' event of the owner.
      */
     public function afterInsert()
@@ -336,13 +309,27 @@ class MultilingualBehavior extends Behavior
         /** @var ActiveRecord $owner */
         $owner = $this->owner;
 
-        $translations = [];
-        if ($owner->isRelationPopulated('translations'))
+        if ($owner->isRelationPopulated('translations')) {
             $translations = $this->indexByLanguage($owner->getRelatedRecords()['translations']);
-
-        $this->saveTranslations($translations);
+            $this->saveTranslations($translations);
+        }
     }
 
+    /**
+     * Handle 'afterDelete' event of the owner.
+     */
+    public function afterDelete()
+    {
+        if ($this->forceDelete) {
+            /** @var ActiveRecord $owner */
+            $owner = $this->owner;
+            $owner->unlinkAll('translations', true);
+        }
+    }
+
+    /**
+     * @param array $translations
+     */
     private function saveTranslations($translations = [])
     {
         /** @var ActiveRecord $owner */
@@ -386,17 +373,7 @@ class MultilingualBehavior extends Behavior
      */
     public function canSetProperty($name, $checkVars = true)
     {
-        if (method_exists($this, 'set' . $name) || $checkVars && property_exists($this, $name)) {
-            return true;
-        } else {
-            foreach ($this->languages as $lang) {
-                foreach ($this->attributes as $attribute) {
-                    if ($name == $attribute . '_' . $lang)
-                        return true;
-                }
-            }
-        }
-        return false;
+        return $this->hasLangAttribute($name);
     }
 
     /**
@@ -406,9 +383,11 @@ class MultilingualBehavior extends Behavior
     {
         try {
             return parent::__get($name);
-        } catch (Exception $e) {
+        } catch (UnknownPropertyException $e) {
             if ($this->hasLangAttribute($name)) return $this->getLangAttribute($name);
+            // @codeCoverageIgnoreStart
             else throw $e;
+            // @codeCoverageIgnoreEnd
         }
     }
 
@@ -419,19 +398,22 @@ class MultilingualBehavior extends Behavior
     {
         try {
             parent::__set($name, $value);
-        } catch (Exception $e) {
+        } catch (UnknownPropertyException $e) {
             if ($this->hasLangAttribute($name)) $this->setLangAttribute($name, $value);
+            // @codeCoverageIgnoreStart
             else throw $e;
+            // @codeCoverageIgnoreEnd
         }
     }
 
     /**
      * @inheritdoc
+     * @codeCoverageIgnore
      */
     public function __isset($name)
     {
         if (!parent::__isset($name)) {
-            return ($this->hasLangAttribute($name));
+            return $this->hasLangAttribute($name);
         } else {
             return true;
         }
@@ -469,7 +451,7 @@ class MultilingualBehavior extends Behavior
      * @param $records
      * @return array
      */
-    private function indexByLanguage($records)
+    protected function indexByLanguage($records)
     {
         $sorted = array();
         foreach ($records as $record) {
@@ -477,5 +459,23 @@ class MultilingualBehavior extends Behavior
         }
         unset($records);
         return $sorted;
+    }
+
+    /**
+     * @param $language
+     * @return string
+     */
+    private function getLanguageBaseName($language)
+    {
+        return substr($language, 0, 2);
+    }
+
+    /**
+     * @param $className
+     * @return string
+     */
+    private function getShortClassName($className)
+    {
+        return substr($className, strrpos($className, '\\') + 1);
     }
 }

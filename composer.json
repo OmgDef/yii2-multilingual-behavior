@@ -12,7 +12,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "omgdef\\multilingual\\": ""
+            "omgdef\\multilingual\\": "src"
         }
     },
     "require": {
