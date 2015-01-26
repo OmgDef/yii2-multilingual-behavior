@@ -4,7 +4,7 @@ Yii2 port of the [yii-multilingual-behavior](https://github.com/belerophon/yii-m
 
 [![Packagist Version](https://img.shields.io/packagist/v/omgdef/yii2-multilingual-behavior.svg?style=flat-square)](https://packagist.org/packages/omgdef/yii2-multilingual-behavior)
 [![Total Downloads](https://img.shields.io/packagist/dt/omgdef/yii2-multilingual-behavior.svg?style=flat-square)](https://packagist.org/packages/omgdef/yii2-multilingual-behavior)
-[![Build Status](https://img.shields.io/travis/omgdef/yii2-multilingual-behavior/master.svg?style=flat-square)](https://travis-ci.org/OmgDef/yii2-multilingual-behavior)
+[![Build Status](https://img.shields.io/travis/OmgDef/yii2-multilingual-behavior/master.svg?style=flat-square)](https://travis-ci.org/OmgDef/yii2-multilingual-behavior)
 [![Code Quality](https://img.shields.io/scrutinizer/g/omgdef/yii2-multilingual-behavior/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/OmgDef/yii2-multilingual-behavior)
 [![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/omgdef/yii2-multilingual-behavior/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/OmgDef/yii2-multilingual-behavior)
 
