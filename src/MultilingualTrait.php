@@ -41,4 +41,9 @@ trait MultilingualTrait
         $this->with('translations');
         return $this;
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    abstract public function with();
 }

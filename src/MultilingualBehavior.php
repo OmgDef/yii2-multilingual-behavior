@@ -121,7 +121,7 @@ class MultilingualBehavior extends Behavior
 
         $languages = [];
         foreach ($this->languages as $language) {
-            $languages[] = $this->getLanguageBaseName($language, 0, 2);
+            $languages[] = $this->getLanguageBaseName($language);
         }
 
         $this->languages = $languages;
@@ -129,11 +129,11 @@ class MultilingualBehavior extends Behavior
         if (!$this->defaultLanguage) {
             $language = isset(Yii::$app->params['defaultLanguage']) && Yii::$app->params['defaultLanguage'] ?
                 Yii::$app->params['defaultLanguage'] : Yii::$app->language;
-            $this->defaultLanguage = $this->getLanguageBaseName($language, 0, 2);
+            $this->defaultLanguage = $this->getLanguageBaseName($language);
         }
 
         if (!$this->_currentLanguage) {
-            $this->_currentLanguage = $this->getLanguageBaseName(Yii::$app->language, 0, 2);
+            $this->_currentLanguage = $this->getLanguageBaseName(Yii::$app->language);
         }
 
         if (!$this->attributes) {
@@ -262,7 +262,6 @@ class MultilingualBehavior extends Behavior
             foreach ($this->languages as $lang) {
                 foreach ($this->attributes as $attribute) {
 
-                    $attributeValue = null;
                     if ($related['translations']) {
                         $translations = $this->indexByLanguage($related['translations']);
                         foreach ($translations as $translation) {
