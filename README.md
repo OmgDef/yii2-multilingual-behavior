@@ -139,8 +139,7 @@ Then you have to overwrite the `find()` method in your model
 ```php
     public static function find()
     {
-        $q = new MultilingualQuery(get_called_class());
-        return $q;
+        return MultilingualQuery(get_called_class());
     }
 ```
 
