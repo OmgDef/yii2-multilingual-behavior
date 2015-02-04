@@ -194,11 +194,14 @@ class MultilingualBehavior extends Behavior
             $this->createLangClass();
         }
 
-        $owner = new $this->langClassName;
+        $translateModel = new $this->langClassName;
         foreach ($this->languages as $lang) {
             foreach ($this->attributes as $attribute) {
                 $ownerFiled = $this->localizedPrefix . $attribute;
-                $this->setLangAttribute($attribute . '_' . $lang, $owner->{$ownerFiled});
+                $this->setLangAttribute($attribute . '_' . $lang, $translateModel->{$ownerFiled});
+                if ($lang == $this->defaultLanguage) {
+                    $this->setLangAttribute($attribute, $translateModel->{$ownerFiled});
+                }
             }
         }
     }
@@ -242,7 +245,7 @@ class MultilingualBehavior extends Behavior
      */
     public function getTranslation($language = null)
     {
-        $language = $language ?  : $this->_currentLanguage;
+        $language = $language ?: $this->_currentLanguage;
         return $this->owner->hasOne($this->langClassName, [$this->langForeignKey => $this->_ownerPrimaryKey])
             ->where([$this->languageField => $language]);
     }
