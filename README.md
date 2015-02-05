@@ -59,16 +59,17 @@ or add
 to the require section of your `composer.json` file.
 
 
-Usage
+Usage (for version 2.* and higher)
 -----
+**!!!IMPORTANT!!! Docs for vesions 1.* [here](https://github.com/OmgDef/yii2-multilingual-behavior/blob/f91d63403f02c8a3266796b41d197068d7ef7fbb/README.md)**
+
+**In vesion 2.* forceOverwrite property is deprecated**
 
 Here an example of base 'post' table :
 
 ```sql
 CREATE TABLE IF NOT EXISTS `post` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
-    `title` varchar(255) NOT NULL,
-    `content` TEXT NOT NULL,
     `created_at` datetime NOT NULL,
     `updated_at` datetime NOT NULL,
     `enabled` tinyint(1) NOT NULL DEFAULT '1',
@@ -108,7 +109,7 @@ public function behaviors()
             ],
             //'languageField' => 'language',
             //'localizedPrefix' => '',
-            //'forceOverwrite' => false',
+            //'requireTranslations' => false',
             //'dynamicLangClass' => true',
             //'langClassName' => PostLang::className(), // or namespace/for/a/class/PostLang
             'defaultLanguage' => 'ru',
@@ -125,7 +126,7 @@ public function behaviors()
 Behavior attributes:
 * languageField The name of the language field of the translation table. Default is 'language'.
 * localizedPrefix The prefix of the localized attributes in the lang table. Is used to avoid collisions in queries. The columns in the translation table corresponding to the localized attributes have to be name like this: '[prefix]_[name of the attribute]' and the id column (primary key) like this : '[prefix]_id'
-* forceOverwrite Whether to force overwrite of the default language value with translated value even if it is empty.
+* requireTranslations if this property is set to true required validators will be applied to all translation models.
 * dynamicLangClass Whether to dynamically create translation model class. If true, the translation model class will be generated on runtime with the use of the eval() function so no additionnal php file is needed.
 * langClassName The name of translation model class. (required if dynamicLangClass === false)
 * languages Available languages. It can be a simple array: array('fr', 'en') or an associative array: array('fr' => 'Français', 'en' => 'English') (required)
@@ -140,16 +141,6 @@ Then you have to overwrite the `find()` method in your model
     public static function find()
     {
         return MultilingualQuery(get_called_class());
-    }
-```
-
-Add this function to the model class to retrieve translated models by default:
-```php
-    public static function find()
-    {
-        $q = new MultilingualQuery(get_called_class());
-        $q->localized();
-        return $q;
     }
 ```
 
