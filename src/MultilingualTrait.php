@@ -7,7 +7,6 @@ use yii\db\ActiveQuery;
 /**
  * Multilingual trait. Used in ActiveQuery to override @see ActiveQuery::createCommand()
  * Modify ActiveRecord query for multilingual support
- * @package app\modules\core\behaviors\multilingual
  */
 trait MultilingualTrait
 {
@@ -26,9 +25,12 @@ trait MultilingualTrait
         if (!$language)
             $language = Yii::$app->language;
 
-        $this->with(['translation' => function ($query) use ($language) {
-            $query->where([$this->languageField => substr($language, 0, 2)]);
-        }]);
+        if (!isset($this->with['translations'])) {
+            $this->with(['translation' => function ($query) use ($language) {
+                $query->where([$this->languageField => substr($language, 0, 2)]);
+            }]);
+        }
+
         return $this;
     }
 
@@ -38,6 +40,9 @@ trait MultilingualTrait
      */
     public function multilingual()
     {
+        if (isset($this->with['translation'])) {
+            unset($this->with['translation']);
+        }
         $this->with('translations');
         return $this;
     }
