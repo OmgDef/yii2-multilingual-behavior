@@ -117,16 +117,15 @@ class MultilingualBehavior extends Behavior
         if (!$this->languages || !is_array($this->languages)) {
             throw new InvalidConfigException('Please specify array of available languages for the ' . get_class($this) . ' in the '
                 . get_class($this->owner) . ' or in the application parameters', 101);
-        } elseif (array_values($this->languages) !== $this->languages) { //associative array
+        }
+
+        if (array_values($this->languages) !== $this->languages) { //associative array
             $this->languages = array_keys($this->languages);
         }
 
-        $languages = [];
-        foreach ($this->languages as $language) {
-            $languages[] = $this->getLanguageBaseName($language);
-        }
-
-        $this->languages = $languages;
+        $this->languages = array_map(function ($language) {
+            return $this->getLanguageBaseName($language);
+        }, $this->languages);
 
         if (!$this->defaultLanguage) {
             $this->defaultLanguage = isset(Yii::$app->params['defaultLanguage']) && Yii::$app->params['defaultLanguage'] ?
@@ -148,7 +147,6 @@ class MultilingualBehavior extends Behavior
             $this->langClassName = get_class($this->owner) . 'Lang';
         }
 
-
         $this->_langClassShortName = $this->getShortClassName($this->langClassName);
         $this->_ownerClassName = get_class($this->owner);
         $this->_ownerClassShortName = $this->getShortClassName($this->_ownerClassName);
@@ -165,23 +163,29 @@ class MultilingualBehavior extends Behavior
         $rules = $owner->rules();
         $validators = $owner->getValidators();
 
-        foreach ($this->languages as $language) {
-            foreach ($this->attributes as $attribute) {
-                foreach ($rules as $rule) {
-                    $rule_attributes = is_array($rule[0]) ? $rule[0] : [$rule[0]];
+        foreach ($rules as $rule) {
+            if (in_array($rule[1], $this->_excludedValidators))
+                continue;
 
-                    if (!in_array($rule[1], $this->_excludedValidators)) {
-                        if ((is_array($rule_attributes) && in_array($attribute, $rule_attributes)) || (!is_array($rule_attributes) && $rule_attributes == $attribute)) {
-                            if ($rule[1] !== 'required' || $this->requireTranslations) {
-                                if (isset($rule['skipOnEmpty']) && !$rule['skipOnEmpty'])
-                                    $rule['skipOnEmpty'] = !$this->requireTranslations;
-                                $validators[] = Validator::createValidator($rule[1], $owner, $attribute . '_' . $language, array_slice($rule, 2));
-                            } elseif ($rule[1] === 'required') {
-                                $validators[] = Validator::createValidator('safe', $owner, $attribute . '_' . $language, array_slice($rule, 2));
-                            }
-                        }
-                    }
-                }
+            $rule_attributes = is_array($rule[0]) ? $rule[0] : [$rule[0]];
+            $attributes = array_intersect($this->attributes, $rule_attributes);
+
+            if (!$attributes)
+                continue;
+
+            foreach ($attributes as $key => $attribute) {
+                foreach ($this->languages as $language)
+                    $attributes[$key] = $attribute . '_' . $language;
+            }
+
+            if (isset($rule['skipOnEmpty']) && !$rule['skipOnEmpty'])
+                $rule['skipOnEmpty'] = !$this->requireTranslations;
+
+            $params = array_slice($rule, 2);
+            if ($rule[1] !== 'required' || $this->requireTranslations) {
+                $validators[] = Validator::createValidator($rule[1], $owner, $attributes, $params);
+            } elseif ($rule[1] === 'required') {
+                $validators[] = Validator::createValidator('safe', $owner, $attributes, $params);
             }
         }
 
