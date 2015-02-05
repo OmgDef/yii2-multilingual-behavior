@@ -218,12 +218,6 @@ class MultilingualBehavior extends Behavior
                 {
                     return \'' . $this->tableName . '\';
                 }
-
-                public function ' . strtolower($this->_ownerClassShortName) . '()
-                {
-                    return $this->hasOne(\'' . $this->_ownerClassName . '\', [\'' . $this->_ownerPrimaryKey . '\' => \'
-                    ' . $this->langForeignKey . '\']);
-                }
             }');
         }
     }
