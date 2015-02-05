@@ -125,11 +125,11 @@ public function behaviors()
 
 Behavior attributes:
 * languageField The name of the language field of the translation table. Default is 'language'.
-* localizedPrefix The prefix of the localized attributes in the lang table. Is used to avoid collisions in queries. The columns in the translation table corresponding to the localized attributes have to be name like this: '[prefix]_[name of the attribute]' and the id column (primary key) like this : '[prefix]_id'
+* localizedPrefix The prefix of the localized attributes in the lang table. Is used to avoid collisions in queries. The columns in the translation table corresponding to the localized attributes have to be name like this: ```[prefix]_[name of the attribute]``` and the id column (primary key) like this : ```[prefix]_id```
 * requireTranslations if this property is set to true required validators will be applied to all translation models.
 * dynamicLangClass Whether to dynamically create translation model class. If true, the translation model class will be generated on runtime with the use of the eval() function so no additionnal php file is needed.
 * langClassName The name of translation model class. (required if dynamicLangClass === false)
-* languages Available languages. It can be a simple array: array('fr', 'en') or an associative array: array('fr' => 'Français', 'en' => 'English') (required)
+* languages Available languages. It can be a simple array: ```['fr', 'en']``` or an associative array: ```['fr' => 'Français', 'en' => 'English']``` (required)
 * defaultLanguage The default language. (required)
 * langForeignKey The name of the foreign key field of the translation table related to base model table. (required)
 * tableName The name of the translation table (required)
