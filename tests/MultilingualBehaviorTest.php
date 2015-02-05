@@ -1,7 +1,7 @@
 <?php
 namespace tests;
 
-use tests\models\PostForce;
+use tests\models\PostRequired;
 use Yii;
 use PHPUnit_Extensions_Database_DataSet_ReplacementDataSet;
 use yii\db\Connection;
@@ -93,6 +93,10 @@ class MultilingualBehaviorTest extends DatabaseTestCase
         $data = [];
         $models = Post::find()->multilingual()->all();
         foreach ($models as $model) {
+            $this->assertEquals($model->title, $model->title_ru);
+            $this->assertEquals($model->body, $model->body_ru);
+            $this->assertNotNull($model->title_en);
+            $this->assertNotNull($model->body_en);
             $data[] = $model->toArray([], ['translations']);
         }
 
@@ -105,11 +109,15 @@ class MultilingualBehaviorTest extends DatabaseTestCase
             'title' => 'New post title',
             'body' => 'New post body',
         ]);
+
         $this->assertTrue($post->save());
+
         $dataSet = $this->getConnection()->createDataSet(['post', 'postLang']);
         $expectedDataSet = $this->createFlatXMLDataSet(__DIR__ . '/data/test-create-post.xml');
+
         $rds = new PHPUnit_Extensions_Database_DataSet_ReplacementDataSet($expectedDataSet);
         $rds->addFullReplacement(self::NULL_KEY, null);
+
         $this->assertDataSetsEqual($rds, $dataSet);
     }
 
@@ -123,6 +131,7 @@ class MultilingualBehaviorTest extends DatabaseTestCase
             'title_ru' => 'New post title ru', //this value should be overwritten by default language value
             'body_ru' => 'New post body ru',
         ]);
+
         $this->assertTrue($post->save());
         $dataSet = $this->getConnection()->createDataSet(['post', 'postLang']);
         $expectedDataSet = $this->createFlatXMLDataSet(__DIR__ . '/data/test-create-post-set-translations.xml');
@@ -164,26 +173,18 @@ class MultilingualBehaviorTest extends DatabaseTestCase
     public function testLocalized()
     {
         $post = Post::find()->localized()->where(['id' => 2])->one();
-        $this->assertEquals(require(__DIR__ . '/data/test-localized-en.php'), $post->getAttributes());
+        $this->assertEquals(require(__DIR__ . '/data/test-localized-en.php'), [
+            'id' => $post->id,
+            'title' => $post->title,
+            'body' => $post->body,
+        ]);
 
         $post = Post::find()->localized('ru')->where(['id' => 2])->one();
-        $this->assertEquals(require(__DIR__ . '/data/test-localized-ru.php'), $post->getAttributes());
-    }
-
-    public function testForceOverwriteSave()
-    {
-        $post = PostForce::find()->multilingual()->where(['id' => 3])->one();
-        $post->setAttributes([
-            'title' => 'Updated post title 2',
-            'body' => 'Updated post body 2',
-            'title_en' => 'Updated post title 2 en',
-            'body_en' => '',
+        $this->assertEquals(require(__DIR__ . '/data/test-localized-ru.php'), [
+            'id' => $post->id,
+            'title' => $post->title,
+            'body' => $post->body,
         ]);
-        $this->assertFalse($post->save());
-        $this->assertArrayHasKey('body_en', $post->getErrors());
-
-        $post->body_en = 'Some text';
-        $this->assertTrue($post->save());
     }
 
     public function testDeletePost()
@@ -193,6 +194,27 @@ class MultilingualBehaviorTest extends DatabaseTestCase
         $dataSet = $this->getConnection()->createDataSet(['post', 'postLang']);
         $expectedDataSet = $this->createFlatXMLDataSet(__DIR__ . '/data/test-delete-post.xml');
         $this->assertDataSetsEqual($expectedDataSet, $dataSet);
+    }
+
+    public function testLocalizedAndMultilingual()
+    {
+        $post = Post::find()->localized()->multilingual()->limit(1)->one();
+        $this->assertTrue($post->isRelationPopulated('translations'));
+        $this->assertFalse($post->isRelationPopulated('translation'));
+    }
+
+    public function testRequired()
+    {
+        $post = new PostRequired([
+            'title' => 'rus',
+            'body' => 'rus',
+        ]);
+
+        $post->validate();
+        $this->assertArrayNotHasKey('title_ru', $post->errors);
+        $this->assertArrayNotHasKey('body_ru', $post->errors);
+        $this->assertArrayHasKey('title_en', $post->errors);
+        $this->assertArrayHasKey('body_en', $post->errors);
     }
 
     /**

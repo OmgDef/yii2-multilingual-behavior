@@ -4,8 +4,6 @@ return array(
     0 =>
         array(
             'id' => 1,
-            'title' => 'Post title 1 ru',
-            'body' => 'Post body 1 ru',
             'translations' =>
                 array(
                     0 =>
@@ -29,8 +27,6 @@ return array(
     1 =>
         array(
             'id' => 2,
-            'title' => 'Post title 2',
-            'body' => 'Post body 2',
             'translations' =>
                 array(
                     0 =>
@@ -54,8 +50,6 @@ return array(
     2 =>
         array(
             'id' => 3,
-            'title' => 'Post title 3',
-            'body' => '',
             'translations' =>
                 array(
                     0 =>

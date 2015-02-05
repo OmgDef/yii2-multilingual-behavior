@@ -5,7 +5,7 @@ use Yii;
 use yii\db\ActiveQuery;
 
 /**
- * Multilingual trait. Used in ActiveQuery to override @see ActiveQuery::createCommand()
+ * Multilingual trait.
  * Modify ActiveRecord query for multilingual support
  */
 trait MultilingualTrait
