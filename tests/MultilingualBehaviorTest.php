@@ -123,14 +123,20 @@ class MultilingualBehaviorTest extends DatabaseTestCase
 
     public function testCreatePostSetTranslations()
     {
-        $post = new Post([
+        $post = new Post();
+        $data = [
             'title' => 'New post title',
             'body' => 'New post body',
             'title_en' => 'New post title en',
             'body_en' => 'New post body en',
             'title_ru' => 'New post title ru', //this value should be overwritten by default language value
             'body_ru' => 'New post body ru',
-        ]);
+        ];
+        $formName =  $post->formName();
+        if(!empty($formName)){
+            $data = [$formName => $data];
+        }
+        $post->load($data);
 
         $this->assertTrue($post->save());
         $dataSet = $this->getConnection()->createDataSet(['post', 'postLang']);
