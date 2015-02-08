@@ -60,7 +60,7 @@ class MultilingualBehavior extends Behavior
     public $languageField = 'language';
 
     /**
-     * @var boolean if this property is set to true required validators will be applied to translation models.
+     * @var boolean if this property is set to true required validators will be applied to all translation models.
      * Default to false.
      */
     public $requireTranslations = false;
