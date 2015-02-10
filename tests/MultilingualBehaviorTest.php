@@ -11,8 +11,6 @@ use omgdef\multilingual\MultilingualBehavior;
 
 class MultilingualBehaviorTest extends DatabaseTestCase
 {
-    CONST NULL_KEY = '##NULL##';
-
     public function testConfiguration()
     {
         $post = new Post();
@@ -115,10 +113,7 @@ class MultilingualBehaviorTest extends DatabaseTestCase
         $dataSet = $this->getConnection()->createDataSet(['post', 'postLang']);
         $expectedDataSet = $this->createFlatXMLDataSet(__DIR__ . '/data/test-create-post.xml');
 
-        $rds = new PHPUnit_Extensions_Database_DataSet_ReplacementDataSet($expectedDataSet);
-        $rds->addFullReplacement(self::NULL_KEY, null);
-
-        $this->assertDataSetsEqual($rds, $dataSet);
+        $this->assertDataSetsEqual($expectedDataSet, $dataSet);
     }
 
     public function testCreatePostSetTranslations()
@@ -132,8 +127,8 @@ class MultilingualBehaviorTest extends DatabaseTestCase
             'title_ru' => 'New post title ru', //this value should be overwritten by default language value
             'body_ru' => 'New post body ru',
         ];
-        $formName =  $post->formName();
-        if(!empty($formName)){
+        $formName = $post->formName();
+        if (!empty($formName)) {
             $data = [$formName => $data];
         }
         $post->load($data);

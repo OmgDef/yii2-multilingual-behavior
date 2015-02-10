@@ -292,7 +292,7 @@ class MultilingualBehavior extends Behavior
         }
 
         foreach ($this->attributes as $attribute) {
-            if ($owner->hasAttribute($attribute)) {
+            if ($owner->hasAttribute($attribute) && $this->getLangAttribute($attribute)) {
                 $owner->setAttribute($attribute, $this->getLangAttribute($attribute));
             }
         }

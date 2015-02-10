@@ -5,7 +5,9 @@
  * @license http://opensource.org/licenses/BSD-3-Clause
  */
 namespace tests;
+
 use Yii;
+
 /**
  * DatabaseTestCase
  */
@@ -18,6 +20,7 @@ abstract class DatabaseTestCase extends \PHPUnit_Extensions_Database_TestCase
     {
         return $this->createDefaultDBConnection(\Yii::$app->getDb()->pdo);
     }
+
     /**
      * @inheritdoc
      */
@@ -25,6 +28,7 @@ abstract class DatabaseTestCase extends \PHPUnit_Extensions_Database_TestCase
     {
         return $this->createFlatXMLDataSet(__DIR__ . '/data/test.xml');
     }
+
     /**
      * @inheritdoc
      */

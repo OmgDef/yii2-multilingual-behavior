@@ -11,10 +11,11 @@ use omgdef\multilingual\MultilingualBehavior;
 
 class DuplicationTest extends DatabaseTestCase
 {
-    CONST NULL_KEY = '##NULL##';
-
     public function testFindAndSave()
     {
+        $post = Post::findOne(4);
+        $this->assertNotNull($post->title);
+
         $post = Post::findOne(1);
         $this->assertNotNull($post->title);
 
@@ -54,6 +55,15 @@ class DuplicationTest extends DatabaseTestCase
         $dataSet = $this->getConnection()->createDataSet(['post', 'postLang']);
         $expectedDataSet = $this->createFlatXMLDataSet(__DIR__ . '/data/test-create-post-set-translations-dublication.xml');
         $this->assertDataSetsEqual($expectedDataSet, $dataSet);
+
+        $post = new Post([
+            'title' => 'New post title',
+            'body' => 'New post body',
+        ]);
+
+        $this->assertTrue($post->save());
+        $post = Post::findOne($post->id);
+        $this->assertNotNull($post->title);
     }
 
     /**
@@ -76,5 +86,13 @@ class DuplicationTest extends DatabaseTestCase
         } catch (\Exception $e) {
             Yii::$app->clear('db');
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDataSet()
+    {
+        return $this->createFlatXMLDataSet(__DIR__ . '/data/test-dublication.xml');
     }
 }
