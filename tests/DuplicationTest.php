@@ -1,16 +1,15 @@
 <?php
 namespace tests;
 
-use tests\models\PostRequired;
 use Yii;
 use PHPUnit_Extensions_Database_DataSet_ReplacementDataSet;
-use yii\db\Connection;
-use yii\base\InvalidConfigException;
 use tests\models\Post;
 use omgdef\multilingual\MultilingualBehavior;
 
 class DuplicationTest extends DatabaseTestCase
 {
+    protected static $migrationFileName = 'sqlite_with_dublication.sql';
+
     public function testFindAndSave()
     {
         $post = Post::findOne(4);
@@ -36,20 +35,14 @@ class DuplicationTest extends DatabaseTestCase
 
     public function testCreate()
     {
-        $post = new Post();
-        $data = [
+        $post = new Post([
             'title' => 'New post title',
             'body' => 'New post body',
             'title_en' => 'New post title en',
             'body_en' => 'New post body en',
             'title_ru' => 'New post title ru', //this value should be overwritten by default language value
             'body_ru' => 'New post body ru',
-        ];
-        $formName = $post->formName();
-        if (!empty($formName)) {
-            $data = [$formName => $data];
-        }
-        $post->load($data);
+        ]);
 
         $this->assertTrue($post->save());
         $dataSet = $this->getConnection()->createDataSet(['post', 'postLang']);
@@ -64,28 +57,6 @@ class DuplicationTest extends DatabaseTestCase
         $this->assertTrue($post->save());
         $post = Post::findOne($post->id);
         $this->assertNotNull($post->title);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function setUpBeforeClass()
-    {
-        try {
-            Yii::$app->set('db', [
-                'class' => Connection::className(),
-                'dsn' => 'sqlite::memory:',
-            ]);
-            Yii::$app->getDb()->open();
-            $lines = explode(';', file_get_contents(__DIR__ . '/migrations/sqlite_with_dublication.sql'));
-            foreach ($lines as $line) {
-                if (trim($line) !== '') {
-                    Yii::$app->getDb()->pdo->exec($line);
-                }
-            }
-        } catch (\Exception $e) {
-            Yii::$app->clear('db');
-        }
     }
 
     /**

@@ -4,7 +4,6 @@ namespace tests;
 use tests\models\PostRequired;
 use Yii;
 use PHPUnit_Extensions_Database_DataSet_ReplacementDataSet;
-use yii\db\Connection;
 use yii\base\InvalidConfigException;
 use tests\models\Post;
 use omgdef\multilingual\MultilingualBehavior;
@@ -216,27 +215,5 @@ class MultilingualBehaviorTest extends DatabaseTestCase
         $this->assertArrayNotHasKey('body_ru', $post->errors);
         $this->assertArrayHasKey('title_en', $post->errors);
         $this->assertArrayHasKey('body_en', $post->errors);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function setUpBeforeClass()
-    {
-        try {
-            Yii::$app->set('db', [
-                'class' => Connection::className(),
-                'dsn' => 'sqlite::memory:',
-            ]);
-            Yii::$app->getDb()->open();
-            $lines = explode(';', file_get_contents(__DIR__ . '/migrations/sqlite.sql'));
-            foreach ($lines as $line) {
-                if (trim($line) !== '') {
-                    Yii::$app->getDb()->pdo->exec($line);
-                }
-            }
-        } catch (\Exception $e) {
-            Yii::$app->clear('db');
-        }
     }
 }
