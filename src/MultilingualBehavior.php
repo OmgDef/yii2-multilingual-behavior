@@ -279,7 +279,7 @@ class MultilingualBehavior extends Behavior
             }
         } else {
             if (!$owner->isRelationPopulated('translation')) {
-                $this->owner->translation;
+                $owner->translation;
             }
 
             $translation = $owner->getRelatedRecords()['translation'];
@@ -288,6 +288,12 @@ class MultilingualBehavior extends Behavior
                     $attribute_name = $this->localizedPrefix . $attribute;
                     $owner->setLangAttribute($attribute, $translation->$attribute_name);
                 }
+            }
+        }
+
+        foreach ($this->attributes as $attribute) {
+            if ($owner->hasAttribute($attribute)) {
+                $owner->setAttribute($attribute, $this->getLangAttribute($attribute));
             }
         }
     }
