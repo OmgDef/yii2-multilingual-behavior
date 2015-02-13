@@ -173,19 +173,22 @@ class MultilingualBehavior extends Behavior
             if (!$attributes)
                 continue;
 
+            $rule_attributes = [];
             foreach ($attributes as $key => $attribute) {
                 foreach ($this->languages as $language)
-                    $attributes[$key] = $attribute . '_' . $language;
+                    if ($language != $this->defaultLanguage)
+                        $rule_attributes[] = $attribute . '_' . $language;
             }
 
             if (isset($rule['skipOnEmpty']) && !$rule['skipOnEmpty'])
                 $rule['skipOnEmpty'] = !$this->requireTranslations;
 
             $params = array_slice($rule, 2);
+
             if ($rule[1] !== 'required' || $this->requireTranslations) {
-                $validators[] = Validator::createValidator($rule[1], $owner, $attributes, $params);
+                $validators[] = Validator::createValidator($rule[1], $owner, $rule_attributes, $params);
             } elseif ($rule[1] === 'required') {
-                $validators[] = Validator::createValidator('safe', $owner, $attributes, $params);
+                $validators[] = Validator::createValidator('safe', $owner, $rule_attributes, $params);
             }
         }
 
