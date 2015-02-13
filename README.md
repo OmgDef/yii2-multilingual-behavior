@@ -10,7 +10,7 @@ Yii2 port of the [yii-multilingual-behavior](https://github.com/belerophon/yii-m
 
 This behavior allows you to create multilingual models and almost use them as normal models. Translations are stored in a separate table in the database (ex: PostLang or ProductLang) for each model, so you can add or remove a language easily, without modifying your database.
 
-**!!!IMPORTANT!!! Docs for vesions 1.* [here](https://github.com/OmgDef/yii2-multilingual-behavior/blob/f91d63403f02c8a3266796b41d197068d7ef7fbb/README.md)**
+**!!! IMPORTANT !!! Docs for vesions 1.* [here](https://github.com/OmgDef/yii2-multilingual-behavior/blob/f91d63403f02c8a3266796b41d197068d7ef7fbb/README.md)**
 
 **In vesion 2.* forceOverwrite property is deprecated**
 
@@ -64,18 +64,20 @@ to the require section of your `composer.json` file.
 
 Behavior attributes
 ------------
+Attributes marked as bold are required
+
 Attribute | Description
 ----------|------------
-languageField | The name of the language field of the translation table. Default is 'language'.
+languageField | The name of the language field of the translation table. Default is 'language'
 localizedPrefix | The prefix of the localized attributes in the lang table. Is used to avoid collisions in queries. The columns in the translation table corresponding to the localized attributes have to be name like this: ```[prefix]_[name of the attribute]``` and the id column (primary key) like this : ```[prefix]_id```
-requireTranslations | if this property is set to true required validators will be applied to all translation models.
-dynamicLangClass | Whether to dynamically create translation model class. If true, the translation model class will be generated on runtime with the use of the eval() function so no additionnal php file is needed.
-langClassName | The name of translation model class. (required if dynamicLangClass === false)
-languages | Available languages. It can be a simple array: ```['fr', 'en']``` or an associative array: ```['fr' => 'Français', 'en' => 'English']``` (required)
-defaultLanguage | The default language. (required)
-langForeignKey | The name of the foreign key field of the translation table related to base model table. (required)
-tableName | The name of the translation table (required)
-attributes | Multilingual attributes (required)
+requireTranslations | If this property is set to true required validators will be applied to all translation models.
+dynamicLangClass | Dynamically create translation model class. If true, the translation model class will be generated on runtime with the use of the eval() function so no additionnal php file is needed
+langClassName | The name of translation model class. Dafault value is model name + Lang
+**languages** | Available languages. It can be a simple array: ```['fr', 'en']``` or an associative array: ```['fr' => 'Français', 'en' => 'English']```
+**defaultLanguage** | The default language
+**langForeignKey** | Name of the foreign key field of the translation table related to base model table.
+**tableName** | The name of the translation table
+**attributes** | Multilingual attributes
 
 Usage
 -----
