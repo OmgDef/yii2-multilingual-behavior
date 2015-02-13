@@ -3,7 +3,6 @@ namespace tests;
 
 use tests\models\PostRequired;
 use Yii;
-use PHPUnit_Extensions_Database_DataSet_ReplacementDataSet;
 use yii\base\InvalidConfigException;
 use tests\models\Post;
 use omgdef\multilingual\MultilingualBehavior;

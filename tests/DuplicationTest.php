@@ -2,7 +2,6 @@
 namespace tests;
 
 use Yii;
-use PHPUnit_Extensions_Database_DataSet_ReplacementDataSet;
 use tests\models\Post;
 use omgdef\multilingual\MultilingualBehavior;
 
