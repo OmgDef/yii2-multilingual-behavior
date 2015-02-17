@@ -74,7 +74,7 @@ class MultilingualBehavior extends Behavior
 
     /**
      * @var boolean whether to dynamically create translation model class.
-     * If true, the translation model class will be generated on runtime with the use of the eval() function so no additionnal php file is needed.
+     * If true, the translation model class will be generated on runtime with the use of the eval() function so no additional php file is needed.
      * See {@link createLangClass()}
      * Default to true.
      */
@@ -345,24 +345,30 @@ class MultilingualBehavior extends Behavior
 
         foreach ($this->languages as $lang) {
             $defaultLanguage = $lang == $this->defaultLanguage;
+
             if (!isset($translations[$lang])) {
+                /** @var ActiveRecord $translation */
                 $translation = new $this->langClassName;
                 $translation->{$this->languageField} = $lang;
                 $translation->{$this->langForeignKey} = $owner->getPrimaryKey();
             } else {
                 $translation = $translations[$lang];
             }
+
+            $save = false;
             foreach ($this->attributes as $attribute) {
-                if ($defaultLanguage)
-                    $value = $owner->$attribute;
-                else
-                    $value = $this->getLangAttribute($attribute . "_" . $lang);
+                $value = $defaultLanguage ? $owner->$attribute : $this->getLangAttribute($attribute . "_" . $lang);
 
                 if ($value !== null) {
                     $field = $this->localizedPrefix . $attribute;
                     $translation->$field = $value;
+                    $save = true;
                 }
             }
+
+            if ($translation->isNewRecord && !$save)
+                continue;
+
             $translation->save(false);
         }
     }
