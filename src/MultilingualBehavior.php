@@ -369,7 +369,7 @@ class MultilingualBehavior extends Behavior
             if ($translation->isNewRecord && !$save)
                 continue;
 
-            $translation->save(false);
+            $translation->save();
         }
     }
 
