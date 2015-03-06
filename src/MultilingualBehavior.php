@@ -241,7 +241,7 @@ class MultilingualBehavior extends Behavior
      */
     public function getTranslation($language = null)
     {
-        $language = $language ?: $this->currentLanguage;
+        $language = $language ?: $this->getCurrentLanguage();
         return $this->owner->hasOne($this->langClassName, [$this->langForeignKey => $this->ownerPrimaryKey])
             ->where([$this->languageField => $language]);
     }
@@ -491,5 +491,13 @@ class MultilingualBehavior extends Behavior
     private function getShortClassName($className)
     {
         return substr($className, strrpos($className, '\\') + 1);
+    }
+
+    /**
+     * @return mixed|string
+     */
+    public function getCurrentLanguage()
+    {
+        return $this->currentLanguage;
     }
 }
