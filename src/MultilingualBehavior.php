@@ -7,6 +7,7 @@ use yii\base\UnknownPropertyException;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\helpers\Inflector;
 use yii\validators\Validator;
 
 class MultilingualBehavior extends Behavior
@@ -79,6 +80,12 @@ class MultilingualBehavior extends Behavior
      * Default to true.
      */
     public $dynamicLangClass = true;
+
+    /**
+     * @var boolean whether to abridge the language ID.
+     * Default to true.
+     */
+    public $abridge = true;
 
     private $currentLanguage;
     private $ownerClassName;
@@ -177,7 +184,7 @@ class MultilingualBehavior extends Behavior
             foreach ($attributes as $key => $attribute) {
                 foreach ($this->languages as $language)
                     if ($language != $this->defaultLanguage)
-                        $rule_attributes[] = $attribute . '_' . $language;
+                        $rule_attributes[] = $this->getAttributeName($attribute, $language);
             }
 
             if (isset($rule['skipOnEmpty']) && !$rule['skipOnEmpty'])
@@ -200,7 +207,7 @@ class MultilingualBehavior extends Behavior
         foreach ($this->languages as $lang) {
             foreach ($this->attributes as $attribute) {
                 $attributeName = $this->localizedPrefix . $attribute;
-                $this->setLangAttribute($attribute . '_' . $lang, $translation->{$attributeName});
+                $this->setLangAttribute($this->getAttributeName($attribute, $lang), $translation->{$attributeName});
                 if ($lang == $this->defaultLanguage) {
                     $this->setLangAttribute($attribute, $translation->{$attributeName});
                 }
@@ -252,7 +259,7 @@ class MultilingualBehavior extends Behavior
     public function beforeValidate()
     {
         foreach ($this->attributes as $attribute) {
-            $this->setLangAttribute($attribute . '_' . $this->defaultLanguage, $this->getLangAttribute($attribute));
+            $this->setLangAttribute($this->getAttributeName($attribute, $this->defaultLanguage), $this->getLangAttribute($attribute));
         }
     }
 
@@ -271,7 +278,7 @@ class MultilingualBehavior extends Behavior
                     foreach ($translations as $translation) {
                         if ($this->getLanguageBaseName($translation->{$this->languageField}) == $lang) {
                             $attributeName = $this->localizedPrefix . $attribute;
-                            $this->setLangAttribute($attribute . '_' . $lang, $translation->{$attributeName});
+                            $this->setLangAttribute($this->getAttributeName($attribute, $lang), $translation->{$attributeName});
 
                             if ($lang == $this->defaultLanguage) {
                                 $this->setLangAttribute($attribute, $translation->{$attributeName});
@@ -357,7 +364,7 @@ class MultilingualBehavior extends Behavior
 
             $save = false;
             foreach ($this->attributes as $attribute) {
-                $value = $defaultLanguage ? $owner->$attribute : $this->getLangAttribute($attribute . "_" . $lang);
+                $value = $defaultLanguage ? $owner->$attribute : $this->getLangAttribute($this->getAttributeName($attribute, $lang));
 
                 if ($value !== null) {
                     $field = $this->localizedPrefix . $attribute;
@@ -481,7 +488,7 @@ class MultilingualBehavior extends Behavior
      */
     private function getLanguageBaseName($language)
     {
-        return substr($language, 0, 2);
+        return $this->abridge ? substr($language, 0, 2) : $language;
     }
 
     /**
@@ -499,5 +506,16 @@ class MultilingualBehavior extends Behavior
     public function getCurrentLanguage()
     {
         return $this->currentLanguage;
+    }
+
+    /**
+     * @param $attribute
+     * @param $language
+     * @return string
+     */
+    protected function getAttributeName($attribute, $language)
+    {
+        $language = $this->abridge ? $language : Inflector::camel2id(Inflector::id2camel($language), "_");
+        return $attribute . "_" . $language;
     }
 }

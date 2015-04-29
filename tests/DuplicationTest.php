@@ -2,7 +2,7 @@
 namespace tests;
 
 use Yii;
-use tests\models\Post;
+use tests\models\PostAbridge as Post;
 use omgdef\multilingual\MultilingualBehavior;
 
 class DuplicationTest extends DatabaseTestCase

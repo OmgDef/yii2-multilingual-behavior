@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <post id="1"/>
+    <post id="2"/>
+    <post id="3"/>
+    <postLang id="1" post_id="1" language="ru" title="Post title 1 ru" body="Post body 1 ru"/>
+    <postLang id="2" post_id="1" language="en-US" title="Post title 1 en" body="Post body 1 en"/>
+    <postLang id="3" post_id="2" language="ru" title="Updated post title 2" body="Updated post body 2"/>
+    <postLang id="4" post_id="2" language="en-US" title="Updated post title 2 en" body="Updated post body 2 en"/>
+    <postLang id="5" post_id="3" language="ru" title="Post title 3 ru" body="Post body 3 ru"/>
+    <postLang id="6" post_id="3" language="en-US" title="Post title 3 en" body="Post body 3 en"/>
+</dataset>

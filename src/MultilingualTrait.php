@@ -18,16 +18,17 @@ trait MultilingualTrait
     /**
      * Scope for querying by languages
      * @param $language
+     * @param $abridge
      * @return ActiveQuery
      */
-    public function localized($language = null)
+    public function localized($language = null, $abridge = true)
     {
         if (!$language)
             $language = Yii::$app->language;
 
         if (!isset($this->with['translations'])) {
-            $this->with(['translation' => function ($query) use ($language) {
-                $query->where([$this->languageField => substr($language, 0, 2)]);
+            $this->with(['translation' => function ($query) use ($language, $abridge) {
+                $query->where([$this->languageField => $abridge ? substr($language, 0, 2) : $language]);
             }]);
         }
 

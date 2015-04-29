@@ -5,7 +5,7 @@ namespace tests\models;
 use \omgdef\multilingual\MultilingualBehavior;
 use \omgdef\multilingual\MultilingualQuery;
 
-class PostRequired extends Post
+class PostRequired extends PostAbridge
 {
     /**
      * @inheritdoc
