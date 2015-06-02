@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <catalogs_types id="1" sort="100"/>
+    <catalogs_types id="2" sort="1000"/>
+    <catalogs_types id="3" sort="50"/>
+    <catalogs_types id="4" sort="300"/>
+    <catalogs_types id="5" sort="200"/>
+    <catalogs_types id="7" sort="120"/>
+    <catalogs_types_lang id="1" type_id="1" lang_id="ru-RU" title="Справочники изделия"/>
+    <catalogs_types_lang id="2" type_id="2" lang_id="ru-RU" title="Общие справочники"/>
+    <catalogs_types_lang id="3" type_id="3" lang_id="ru-RU" title="Каталоги"/>
+    <catalogs_types_lang id="4" type_id="4" lang_id="ru-RU" title="Тех. партнёрство"/>
+    <catalogs_types_lang id="5" type_id="1" lang_id="en-US" title="Product reference"/>
+    <catalogs_types_lang id="6" type_id="2" lang_id="en-US" title="Shared reference"/>
+    <catalogs_types_lang id="7" type_id="3" lang_id="en-US" title="Products"/>
+    <catalogs_types_lang id="8" type_id="4" lang_id="en-US" title="Solutions"/>
+    <catalogs_types_lang id="9" type_id="5" lang_id="ru-RU" title="Справочники изделия 1"/>
+    <catalogs_types_lang id="10" type_id="5" lang_id="en-US" title="Product reference 1"/>
+    <catalogs_types_lang id="13" type_id="7" lang_id="ru-RU" title="test ru"/>
+    <catalogs_types_lang id="14" type_id="7" lang_id="en-US" title="test en"/>
+</dataset>

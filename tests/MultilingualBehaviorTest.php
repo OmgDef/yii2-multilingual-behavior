@@ -1,7 +1,6 @@
 <?php
 namespace tests;
 
-use tests\models\PostRequired;
 use Yii;
 use tests\models\Post;
 use omgdef\multilingual\MultilingualBehavior;
