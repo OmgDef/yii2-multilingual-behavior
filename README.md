@@ -126,8 +126,8 @@ public function behaviors()
             ],
             //'languageField' => 'language',
             //'localizedPrefix' => '',
-            //'requireTranslations' => false',
-            //'dynamicLangClass' => true',
+            //'requireTranslations' => 'false',
+            //'dynamicLangClass' => 'true',
             //'langClassName' => PostLang::className(), // or namespace/for/a/class/PostLang
             'defaultLanguage' => 'ru',
             'langForeignKey' => 'post_id',
