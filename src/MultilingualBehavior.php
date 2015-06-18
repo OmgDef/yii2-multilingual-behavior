@@ -130,9 +130,9 @@ class MultilingualBehavior extends Behavior
             $this->languages = array_keys($this->languages);
         }
 
-        $this->languages = array_map(function ($language) {
+        $this->languages = array_unique(array_map(function ($language) {
             return $this->getLanguageBaseName($language);
-        }, $this->languages);
+        }, $this->languages));
 
         if (!$this->defaultLanguage) {
             $this->defaultLanguage = isset(Yii::$app->params['defaultLanguage']) && Yii::$app->params['defaultLanguage'] ?
