@@ -486,7 +486,7 @@ class MultilingualBehavior extends Behavior
      * @param $language
      * @return string
      */
-    private function getLanguageBaseName($language)
+    protected function getLanguageBaseName($language)
     {
         return $this->abridge ? substr($language, 0, 2) : $language;
     }
