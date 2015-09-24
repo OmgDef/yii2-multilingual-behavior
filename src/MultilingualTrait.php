@@ -19,7 +19,7 @@ trait MultilingualTrait
      * Scope for querying by languages
      * @param $language
      * @param $abridge
-     * @return ActiveQuery
+     * @return $this
      */
     public function localized($language = null, $abridge = true)
     {
@@ -37,7 +37,7 @@ trait MultilingualTrait
 
     /**
      * Scope for querying by all languages
-     * @return ActiveQuery
+     * @return $this
      */
     public function multilingual()
     {
