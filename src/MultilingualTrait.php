@@ -2,7 +2,8 @@
 namespace omgdef\multilingual;
 
 use Yii;
-use yii\db\ActiveQuery;
+use yii\db\ActiveQueryInterface;
+use yii\db\ActiveQueryTrait;
 
 /**
  * Multilingual trait.
@@ -10,6 +11,7 @@ use yii\db\ActiveQuery;
  */
 trait MultilingualTrait
 {
+    use ActiveQueryTrait;
     /**
      * @var string the name of the lang field of the translation table. Default to 'language'.
      */
@@ -27,7 +29,7 @@ trait MultilingualTrait
             $language = Yii::$app->language;
 
         if (!isset($this->with['translations'])) {
-            $this->with(['translation' => function ($query) use ($language, $abridge) {
+            $this->with(['translation' => function (ActiveQueryInterface $query) use ($language, $abridge) {
                 $query->where([$this->languageField => $abridge ? substr($language, 0, 2) : $language]);
             }]);
         }
@@ -47,9 +49,4 @@ trait MultilingualTrait
         $this->with('translations');
         return $this;
     }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    abstract public function with();
 }
