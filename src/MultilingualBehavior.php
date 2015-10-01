@@ -87,9 +87,13 @@ class MultilingualBehavior extends Behavior
      */
     public $abridge = true;
 
+    /**
+     * @var string the name of the primary key field of the base model. Defaults to first value of Model::primaryKey.
+     */
+    public $ownerPrimaryKey;
+
     private $currentLanguage;
     private $ownerClassName;
-    private $ownerPrimaryKey;
     private $langClassShortName;
     private $ownerClassShortName;
     private $langAttributes = [];
@@ -160,7 +164,9 @@ class MultilingualBehavior extends Behavior
 
         /** @var ActiveRecord $className */
         $className = $this->ownerClassName;
-        $this->ownerPrimaryKey = $className::primaryKey()[0];
+        if (!isset($this->ownerPrimaryKey)) {
+            $this->ownerPrimaryKey = $className::primaryKey()[0];
+        }
 
         if (!isset($this->langForeignKey)) {
             throw new InvalidConfigException('Please specify langForeignKey for the ' . get_class($this) . ' in the '
