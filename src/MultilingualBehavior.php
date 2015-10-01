@@ -363,7 +363,7 @@ class MultilingualBehavior extends Behavior
                 /** @var ActiveRecord $translation */
                 $translation = new $this->langClassName;
                 $translation->{$this->languageField} = $lang;
-                $translation->{$this->langForeignKey} = $owner->getPrimaryKey();
+                $translation->{$this->langForeignKey} = $owner->getAttribute($this->ownerPrimaryKey);
             } else {
                 $translation = $translations[$lang];
             }
