@@ -328,11 +328,7 @@ class MultilingualBehavior extends Behavior
         $translations = [];
         if ($this->loadTranslationsOnInsert)
         {
-            $relations = $this->owner->getRelatedRecords();
-            if (isset($relations['translations']))
-            {
-                $translations = $this->indexByLanguage(['translations']);
-            }
+            $translations = $this->indexByLanguage($this->getTranslations()->all());
         }
         $this->saveTranslations($translations);
     }
