@@ -92,6 +92,12 @@ class MultilingualBehavior extends Behavior
      */
     public $ownerPrimaryKey;
 
+    /**
+     * @var boolean whether to check for existing translations on insert
+     * Default to false
+     */
+    public $checkOnInsert = false;
+
     private $currentLanguage;
     private $ownerClassName;
     private $langClassShortName;
@@ -319,7 +325,12 @@ class MultilingualBehavior extends Behavior
      */
     public function afterInsert()
     {
-        $this->saveTranslations();
+        $translations = [];
+        if ($this->checkOnInsert)
+        {
+            $translations = $this->indexByLanguage($this->owner->getRelatedRecords()['translations']);
+        }
+        $this->saveTranslations($translations);
     }
 
     /**
