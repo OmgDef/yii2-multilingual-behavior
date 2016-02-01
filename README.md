@@ -76,6 +76,7 @@ langClassName | The name of translation model class. Dafault value is model name
 **languages** | Available languages. It can be a simple array: ```['fr', 'en']``` or an associative array: ```['fr' => 'Français', 'en' => 'English']```
 **defaultLanguage** | The default language
 **langForeignKey** | Name of the foreign key field of the translation table related to base model table.
+**ownerPrimaryKey** | Name of the  primary key field in the ownser table. Defaults to the primary key of the owner model.
 **tableName** | The name of the translation table
 **attributes** | Multilingual attributes
 

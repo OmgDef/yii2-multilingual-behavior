@@ -87,9 +87,19 @@ class MultilingualBehavior extends Behavior
      */
     public $abridge = true;
 
+    /**
+     * @var string the name of the primary key field of the base model. Defaults to first value of Model::primaryKey.
+     */
+    public $ownerPrimaryKey;
+
+    /**
+     * @var boolean whether to check for existing translations on insert
+     * Default to false
+     */
+    public $loadTranslationsOnInsert = false;
+
     private $currentLanguage;
     private $ownerClassName;
-    private $ownerPrimaryKey;
     private $langClassShortName;
     private $ownerClassShortName;
     private $langAttributes = [];
@@ -160,7 +170,9 @@ class MultilingualBehavior extends Behavior
 
         /** @var ActiveRecord $className */
         $className = $this->ownerClassName;
-        $this->ownerPrimaryKey = $className::primaryKey()[0];
+        if (!isset($this->ownerPrimaryKey)) {
+            $this->ownerPrimaryKey = $className::primaryKey()[0];
+        }
 
         if (!isset($this->langForeignKey)) {
             throw new InvalidConfigException('Please specify langForeignKey for the ' . get_class($this) . ' in the '
@@ -313,7 +325,12 @@ class MultilingualBehavior extends Behavior
      */
     public function afterInsert()
     {
-        $this->saveTranslations();
+        $translations = [];
+        if ($this->loadTranslationsOnInsert)
+        {
+            $translations = $this->indexByLanguage($this->getTranslations()->all());
+        }
+        $this->saveTranslations($translations);
     }
 
     /**
@@ -357,7 +374,7 @@ class MultilingualBehavior extends Behavior
                 /** @var ActiveRecord $translation */
                 $translation = new $this->langClassName;
                 $translation->{$this->languageField} = $lang;
-                $translation->{$this->langForeignKey} = $owner->getPrimaryKey();
+                $translation->{$this->langForeignKey} = $owner->getAttribute($this->ownerPrimaryKey);
             } else {
                 $translation = $translations[$lang];
             }
