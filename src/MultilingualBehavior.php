@@ -43,6 +43,12 @@ class MultilingualBehavior extends Behavior
     public $langClassName;
 
     /**
+     * @var string if $langClassName is not set, it will be assumed that $langClassName is
+     * get_class($this->owner) . $this->langClassSuffix
+     */
+    public $langClassSuffix = 'Lang';
+
+    /**
      * @var string the name of the foreign key field of the translation table related to base model table.
      */
     public $langForeignKey;
@@ -87,7 +93,8 @@ class MultilingualBehavior extends Behavior
      */
     public $abridge = true;
 
-    private $currentLanguage;
+    public $currentLanguage;
+
     private $ownerClassName;
     private $ownerPrimaryKey;
     private $langClassShortName;
@@ -151,7 +158,7 @@ class MultilingualBehavior extends Behavior
         }
 
         if (!$this->langClassName) {
-            $this->langClassName = get_class($this->owner) . 'Lang';
+            $this->langClassName = get_class($this->owner) . $this->langClassSuffix;
         }
 
         $this->langClassShortName = $this->getShortClassName($this->langClassName);
