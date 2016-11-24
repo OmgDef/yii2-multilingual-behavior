@@ -278,7 +278,7 @@ class MultilingualBehavior extends Behavior
         /** @var ActiveRecord $owner */
         $owner = $this->owner;
 
-        if ($owner->isRelationPopulated('translations') && $related = $owner->getRelatedRecords()['translations']) {
+        if (isset($owner->translations) && $related = $owner->getRelatedRecords()['translations']) {
             $translations = $this->indexByLanguage($related);
             foreach ($this->languages as $lang) {
                 foreach ($this->attributes as $attribute) {
