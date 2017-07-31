@@ -200,9 +200,9 @@ class MultilingualBehavior extends Behavior
             $params = array_slice($rule, 2);
 
             if ($rule[1] !== 'required' || $this->requireTranslations) {
-                $validators[] = Validator::createValidator($rule[1], $owner, $rule_attributes, $params);
+                $validators->append(Validator::createValidator($rule[1], $owner, $rule_attributes, $params));
             } elseif ($rule[1] === 'required') {
-                $validators[] = Validator::createValidator('safe', $owner, $rule_attributes, $params);
+                $validators->append(Validator::createValidator('safe', $owner, $rule_attributes, $params));
             }
         }
 
