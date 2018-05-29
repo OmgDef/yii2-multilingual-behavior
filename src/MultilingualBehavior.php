@@ -331,10 +331,13 @@ class MultilingualBehavior extends Behavior
         /** @var ActiveRecord $owner */
         $owner = $this->owner;
 
-        if ($owner->isRelationPopulated('translations')) {
-            $translations = $this->indexByLanguage($owner->getRelatedRecords()['translations']);
-            $this->saveTranslations($translations);
-        }
+	    $populateTranslationKey = ($owner->isRelationPopulated('translations')) ? 'translations' :
+		    (($owner->isRelationPopulated('translation')) ? 'translation' : null);
+
+	    if ($populateTranslationKey !== null) {
+		    $translations = $this->indexByLanguage($owner->getRelatedRecords()[$populateTranslationKey]);
+		    $this->saveTranslations($translations);
+	    }
     }
 
     /**
@@ -475,18 +478,27 @@ class MultilingualBehavior extends Behavior
         $this->langAttributes[$name] = $value;
     }
 
-    /**
-     * @param $records
-     * @return array
-     */
+	/**
+	 * @param $records
+	 *
+	 * @return array
+	 * @throws InvalidConfigException
+	 */
     protected function indexByLanguage($records)
     {
-        $sorted = array();
-        foreach ($records as $record) {
-            $sorted[$record->{$this->languageField}] = $record;
-        }
-        unset($records);
-        return $sorted;
+	    $sorted = [];
+	    if (is_array($records)) {
+		    foreach ($records as $record) {
+			    $sorted[$record->{$this->languageField}] = $record;
+		    }
+	    } elseif ($records instanceof $this->translationClassName) {
+		    $sorted[$records->{$this->languageField}] = $records;
+	    } else {
+		    throw new InvalidConfigException('$records not valid format type');
+	    }
+	    unset($records);
+
+	    return $sorted;
     }
 
     /**
