@@ -1,10 +1,11 @@
 <?php
+
 namespace omgdef\multilingual;
 
 use Yii;
 use yii\base\Behavior;
-use yii\base\UnknownPropertyException;
 use yii\base\InvalidConfigException;
+use yii\base\UnknownPropertyException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\helpers\Inflector;
@@ -331,13 +332,10 @@ class MultilingualBehavior extends Behavior
         /** @var ActiveRecord $owner */
         $owner = $this->owner;
 
-	    $populateTranslationKey = ($owner->isRelationPopulated('translations')) ? 'translations' :
-		    (($owner->isRelationPopulated('translation')) ? 'translation' : null);
-
-	    if ($populateTranslationKey !== null) {
-		    $translations = $this->indexByLanguage($owner->getRelatedRecords()[$populateTranslationKey]);
-		    $this->saveTranslations($translations);
-	    }
+        if ($owner->isRelationPopulated('translations')) {
+            $translations = $this->indexByLanguage($owner->getRelatedRecords()['translations']);
+            $this->saveTranslations($translations);
+        }
     }
 
     /**
@@ -396,7 +394,7 @@ class MultilingualBehavior extends Behavior
     public function canGetProperty($name, $checkVars = true)
     {
         return method_exists($this, 'get' . $name) || $checkVars && property_exists($this, $name)
-        || $this->hasLangAttribute($name);
+            || $this->hasLangAttribute($name);
     }
 
     /**
@@ -478,27 +476,22 @@ class MultilingualBehavior extends Behavior
         $this->langAttributes[$name] = $value;
     }
 
-	/**
-	 * @param $records
-	 *
-	 * @return array
-	 * @throws InvalidConfigException
-	 */
-    protected function indexByLanguage($records)
+    /**
+     * @param $records
+     *
+     * @return array
+     * @throws InvalidConfigException
+     */
+    protected function indexByLanguage(array $records)
     {
-	    $sorted = [];
-	    if (is_array($records)) {
-		    foreach ($records as $record) {
-			    $sorted[$record->{$this->languageField}] = $record;
-		    }
-	    } elseif ($records instanceof $this->translationClassName) {
-		    $sorted[$records->{$this->languageField}] = $records;
-	    } else {
-		    throw new InvalidConfigException('$records not valid format type');
-	    }
-	    unset($records);
+        $sorted = [];
+        foreach ($records as $record) {
+            $sorted[$record->{$this->languageField}] = $record;
+        }
 
-	    return $sorted;
+        unset($records);
+
+        return $sorted;
     }
 
     /**
