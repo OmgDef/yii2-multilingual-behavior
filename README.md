@@ -168,3 +168,5 @@ Form example:
 $form->field($model, 'title')->textInput(['maxlength' => 255]);
 $form->field($model, 'title_en')->textInput(['maxlength' => 255]);
 ```
+
+**Hint:** ```$model``` has to be populated with ```translations``` relative data otherwise translations will not be updated after ```$form``` send.
