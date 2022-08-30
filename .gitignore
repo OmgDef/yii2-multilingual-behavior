@@ -25,3 +25,4 @@ composer.phar
 phpunit.phar
 # local phpunit config
 /phpunit.xml
+rector.php
