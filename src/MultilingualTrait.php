@@ -32,7 +32,7 @@ trait MultilingualTrait
         if (!isset($this->with['translations'])) {
             $this->with(['translation' => function ($query) use ($language, $abridge) {
                 /** @var ActiveQuery $query */
-                $query->where([$this->languageField => $abridge ? substr($language, 0, 2) : $language]);
+                $query->where([$this->languageField => $abridge ? substr((string) $language, 0, 2) : $language]);
             }]);
         }
 

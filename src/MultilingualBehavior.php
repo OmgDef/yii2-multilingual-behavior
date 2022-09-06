@@ -100,12 +100,12 @@ class MultilingualBehavior extends Behavior
     private $ownerPrimaryKey;
     private $langClassShortName;
     private $ownerClassShortName;
-    private $langAttributes = [];
+    private array $langAttributes = [];
 
     /**
      * @var array excluded validators
      */
-    private $excludedValidators = ['unique'];
+    private array $excludedValidators = ['unique'];
 
     /**
      * @inheritdoc
@@ -130,19 +130,17 @@ class MultilingualBehavior extends Behavior
         parent::attach($owner);
 
         if (empty($this->languages) || !is_array($this->languages)) {
-            throw new InvalidConfigException('Please specify array of available languages for the ' . get_class($this) . ' in the '
-                . get_class($this->owner) . ' or in the application parameters', 101);
+            throw new InvalidConfigException('Please specify array of available languages for the ' . $this::class . ' in the '
+                . $this->owner::class . ' or in the application parameters', 101);
         }
 
         if (array_values($this->languages) !== $this->languages) { //associative array
             $this->languages = array_keys($this->languages);
         }
 
-        $this->languages = array_unique(array_map(function ($language) {
-            return $this->getLanguageBaseName($language);
-        }, $this->languages));
+        $this->languages = array_unique(array_map(fn($language) => $this->getLanguageBaseName($language), $this->languages));
 
-        if (!$this->defaultLanguage) {
+        if ($this->defaultLanguage === '' || $this->defaultLanguage === '0') {
             $this->defaultLanguage = isset(Yii::$app->params['defaultLanguage']) && Yii::$app->params['defaultLanguage'] ?
                 Yii::$app->params['defaultLanguage'] : Yii::$app->language;
         }
@@ -154,25 +152,25 @@ class MultilingualBehavior extends Behavior
         }
 
         if (empty($this->attributes) || !is_array($this->attributes)) {
-            throw new InvalidConfigException('Please specify multilingual attributes for the ' . get_class($this) . ' in the '
-                . get_class($this->owner), 103);
+            throw new InvalidConfigException('Please specify multilingual attributes for the ' . $this::class . ' in the '
+                . $this->owner::class, 103);
         }
 
-        if (!$this->langClassName) {
-            $this->langClassName = get_class($this->owner) . $this->langClassSuffix;
+        if ($this->langClassName === '' || $this->langClassName === '0') {
+            $this->langClassName = $this->owner::class . $this->langClassSuffix;
         }
 
         $this->langClassShortName = $this->getShortClassName($this->langClassName);
-        $this->ownerClassName = get_class($this->owner);
+        $this->ownerClassName = $this->owner::class;
         $this->ownerClassShortName = $this->getShortClassName($this->ownerClassName);
 
         /** @var ActiveRecord $className */
         $className = $this->ownerClassName;
         $this->ownerPrimaryKey = $className::primaryKey()[0];
 
-        if (!isset($this->langForeignKey)) {
-            throw new InvalidConfigException('Please specify langForeignKey for the ' . get_class($this) . ' in the '
-                . get_class($this->owner), 105);
+        if ($this->langForeignKey === null) {
+            throw new InvalidConfigException('Please specify langForeignKey for the ' . $this::class . ' in the '
+                . $this->owner::class, 105);
         }
 
         $rules = $owner->rules();
@@ -191,7 +189,7 @@ class MultilingualBehavior extends Behavior
             $rule_attributes = [];
             foreach ($attributes as $key => $attribute) {
                 foreach ($this->languages as $language)
-                    if ($language != $this->defaultLanguage)
+                    if ($language !== $this->defaultLanguage)
                         $rule_attributes[] = $this->getAttributeName($attribute, $language);
             }
 
@@ -216,7 +214,7 @@ class MultilingualBehavior extends Behavior
             foreach ($this->attributes as $attribute) {
                 $attributeName = $this->localizedPrefix . $attribute;
                 $this->setLangAttribute($this->getAttributeName($attribute, $lang), $translation->{$attributeName});
-                if ($lang == $this->defaultLanguage) {
+                if ($lang === $this->defaultLanguage) {
                     $this->setLangAttribute($attribute, $translation->{$attributeName});
                 }
             }
@@ -353,7 +351,7 @@ class MultilingualBehavior extends Behavior
     /**
      * @param array $translations
      */
-    private function saveTranslations($translations = [])
+    private function saveTranslations(array $translations = [])
     {
         /** @var ActiveRecord $owner */
         $owner = $this->owner;
@@ -453,7 +451,7 @@ class MultilingualBehavior extends Behavior
      * @param string $name the name of the attribute
      * @return boolean
      */
-    public function hasLangAttribute($name)
+    public function hasLangAttribute(string $name)
     {
         return array_key_exists($name, $this->langAttributes);
     }
@@ -477,7 +475,7 @@ class MultilingualBehavior extends Behavior
     }
 
     /**
-     * @param $records
+     * @param array $records
      *
      * @return array
      * @throws InvalidConfigException
@@ -500,7 +498,7 @@ class MultilingualBehavior extends Behavior
      */
     protected function getLanguageBaseName($language)
     {
-        return $this->abridge ? substr($language, 0, 2) : $language;
+        return $this->abridge ? substr((string) $language, 0, 2) : $language;
     }
 
     /**
